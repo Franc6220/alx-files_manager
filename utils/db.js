@@ -1,26 +1,53 @@
 import { MongoClient } from 'mongodb';
 
-const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/files_manager';
-let db = null;
+class DBClient {
+	constructor() {
+		const host = process.env.DB_HOST || 'localhost';
+		const port = process.env.DB_PORT || 27017;
+		const database = process.env.DB_DATABASE || 'files_manager';
+		const uri = `mongodb://${host}:${port}`;
 
-const connectDB = async () => {
-	if (!db) {
-		try {
-			const client = await MongoClient.connect(mongoUri, {
-				useNewUrlParser: true,
-				useUnifiedTopology: true,
-			});
-			db = client.db();
+		// Initialize the MongoDB client and connect to the specified database
+		this.client = new MongoClient(uri, { useUnifiedTopology: true });
+		this.dbName = database;
+
+		// Start connection to the MongoDB server
+		this.client.connect().then(() => {
+			this.db = this.client.db(this.dbName);
 			console.log('Connected to MongoDB');
-		} catch (error) {
-			console.error('MongoDB connection error:', error);
-			throw new Error('MongoDB connection failed');
-		}
+		}).catch((err) => {
+			console.error('Failed to connect to MongoDB', err);
+			this.db = null;
+		});
 	}
-	return db;
-};
 
-// Function to get the DB instance
-const getDB = () => db;
+	/**
+	 * Check if MongoDB connection is alive
+	 * @returns {boolean} True if connection is active, False otherwise
+	 */
+	isAlive() {
+		return this.db ? true : false;
+	}
 
-export { connectDB, getDB };
+	/**
+	 * Get the number of documents in the 'users' collection
+	 * @returns {Promise<number>} Number of users
+	 */
+	async nbUsers() {
+		if (!this.db) return 0;
+		return this.db.collection('users').countDocuments();
+	}
+
+	/**
+	 * Get the number of documents in the 'files' collection
+	 * @returns {Promise<number>} Number of files
+	 */
+	async nbFiles() {
+		if (!this.db) return 0;
+		return this.db.collection('files').countDocuments();
+	}
+}
+
+// Create and export a single instance of DBClient
+const dbClient = new DBClient();
+export default dbClient;
