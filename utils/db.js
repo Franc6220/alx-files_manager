@@ -8,7 +8,7 @@ class DBClient {
 		const uri = `mongodb://${host}:${port}`;
 
 		// Initialize the MongoDB client and connect to the specified database
-		this.client = new MongoClient(uri, { useUnifiedTopology: true });
+		this.client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 		this.dbName = database;
 
 		// Start connection to the MongoDB server
@@ -26,7 +26,7 @@ class DBClient {
 	 * @returns {boolean} True if connection is active, False otherwise
 	 */
 	isAlive() {
-		return this.db ? true : false;
+		return !!this.db;
 	}
 
 	/**

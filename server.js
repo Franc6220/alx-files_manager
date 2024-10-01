@@ -1,5 +1,5 @@
 import express from 'express';
-import { connectDB } from './utils/db';
+import dbClient from './utils/db';
 import routes from './routes/index';
 
 const app = express();
@@ -12,12 +12,10 @@ app.use(express.json());
 app.use('/', routes);
 
 // Connect to MongoDB before starting the server
-connectDB().then(() => {
+dbClient.client.connect().then(() => {
 	app.listen(port, () => {
 		console.log(`Server running on port ${port}`);
 	});
 }).catch((error) => {
 	console.error('Failed to connect to the database:', error);
 });
-
-export default app;
