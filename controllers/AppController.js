@@ -1,5 +1,5 @@
 import redisClient from '../utils/redis';
-import { getDB } from '../utils/db';
+import dbClient from '../utils/db';
 
 class AppController {
 	// GET /status - Returns the status of Redis and MongoDB
@@ -12,11 +12,18 @@ class AppController {
 	// GET /stats - Returns the count of users and files
 	static async getStats(req, res) {
 		try {
-			const usersCount = await db.collection('users').countDocuments();
-			const filesCount = await db.collection('files').countDocuments();
+			// Logging for debugging
+			console.log("Fetching users and files count...");
+
+			const usersCount = await db.client.nbUsers();
+			const filesCount = await db.client.nbFiles();
+
+			// Logging the fetched values
+			console.log(`Users count: ${usersCount}, Files count: ${filesCount}`);
 
 			res.status(200).json({ users: usersCount, files: filesCount });
 		} catch (error) {
+			console.error('Error fetching statistics:', error);
 			res.status(500).json({ error: 'Unable to fetch statistics' });
 		}
 	}

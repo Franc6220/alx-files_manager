@@ -13,6 +13,8 @@ app.use('/', routes);
 
 // Connect to MongoDB before starting the server
 dbClient.client.connect().then(() => {
+	console.log('Connected to MongoDB');
+	// Start the server only after successful MongoDB connection
 	app.listen(port, () => {
 		console.log(`Server running on port ${port}`);
 	});
