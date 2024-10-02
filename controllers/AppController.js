@@ -12,14 +12,9 @@ class AppController {
 	// GET /stats - Returns the count of users and files
 	static async getStats(req, res) {
 		try {
-			// Logging for debugging
-			console.log("Fetching users and files count...");
-
-			const usersCount = await db.client.nbUsers();
-			const filesCount = await db.client.nbFiles();
-
-			// Logging the fetched values
-			console.log(`Users count: ${usersCount}, Files count: ${filesCount}`);
+			// Fetch the number of users and files using dbClient methods
+			const usersCount = await dbClient.nbUsers();
+			const filesCount = await dbClient.nbFiles();
 
 			res.status(200).json({ users: usersCount, files: filesCount });
 		} catch (error) {
