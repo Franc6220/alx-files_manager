@@ -34,7 +34,10 @@ class DBClient {
 	 * @returns {Promise<number>} Number of users
 	 */
 	async nbUsers() {
-		if (!this.db) return 0;
+		if (!this.db) {
+			console.error('MongoDB is not connected');
+			return 0;
+		}
 		return this.db.collection('users').countDocuments();
 	}
 
@@ -43,8 +46,22 @@ class DBClient {
 	 * @returns {Promise<number>} Number of files
 	 */
 	async nbFiles() {
-		if (!this.db) return 0;
+		if (!this.db) {
+			console.error('MongoDB is not connected');
+			return 0;
+		}
 		return this.db.collection('files').countDocuments();
+	}
+
+	/**
+	 * Getter for the MongoDB database instance
+	 * @returns {object} MongoDB database instance
+	 */
+	get dbInstance() {
+		if (!this.db) {
+			throw new Error('Database connection not initialized');
+		}
+		return this.db;
 	}
 }
 
