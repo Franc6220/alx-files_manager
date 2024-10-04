@@ -3,10 +3,6 @@ import sha1 from 'sha1';
 import redisClient from '../utils/redis';
 import dbClient from '../utils/db';
 
-/**
- * Authenticate a user
- */
-
 class AuthController {
 	// GET /connect - Authenticate and generate a token
 	static async getConnect(req, res) {
