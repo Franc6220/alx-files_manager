@@ -3,6 +3,10 @@ import sha1 from 'sha1';
 import redisClient from '../utils/redis';
 import dbClient from '../utils/db';
 
+/**
+ * Authenticate a user
+ */
+
 class AuthController {
 	// GET /connect - Authenticate and generate a token
 	static async getConnect(req, res) {
@@ -24,11 +28,6 @@ class AuthController {
 			
 			// Hash the password
 			const hashedPassword = sha1(password);
-			
-			// Ensure MongoDB is connected before querying
-			if (!dbClient.isAlive()) {
-				return res.status(500).json({ error: 'Database connection error' });
-			}
 
 			// Find the user in the database
 			const user = await dbClient.db.collection('users').findOne({ email, password: hashedPassword });
@@ -41,7 +40,7 @@ class AuthController {
 			const key = `auth_${token}`;
 			
 			// Store token with expiration of 24 hours (86400 seconds)
-			await redisClient.set(key, user._id.toString(), { EX: 86400 });
+			await redisClient.setex(key, user._id.toString());
 
 			// Return the generated token
 			return res.status(200).json({ token });
