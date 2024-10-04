@@ -19,7 +19,7 @@ class AuthController {
 			
 			// Check if email and password are present
 			if (!email || !password) {
-				return res.status(401).json({ error: 'Unauthorized - Missing credentials' });
+				return res.status(401).json({ error: 'Unauthorized' });
 			}
 			
 			// Hash the password
@@ -28,7 +28,7 @@ class AuthController {
 			// Find the user in the database
 			const user = await dbClient.db.collection('users').findOne({ email, password: hashedPassword });
 			if (!user) {
-				return res.status(401).json({ error: 'Unauthorized - Invalid credentials' });
+				return res.status(401).json({ error: 'Unauthorized' });
 			}
 
 			// Generate a token and store it in Redis
@@ -36,7 +36,7 @@ class AuthController {
 			const key = `auth_${token}`;
 			
 			// Store token with expiration of 24 hours (86400 seconds)
-			await redisClient.setex(key, user._id.toString());
+			await redisClient.set(key, user._id.toString(), { EX: 86400 });
 
 			// Return the generated token
 			return res.status(200).json({ token });
@@ -51,7 +51,7 @@ class AuthController {
 		try {
 			const token = req.header('X-Token');
 			if (!token) {
-				return res.status(401).json({ error: 'Unauthorized - Missing token' });
+				return res.status(401).json({ error: 'Unauthorized' });
 			}
 
 			// Delete the token in Redis
@@ -59,7 +59,7 @@ class AuthController {
 			const tokenDeleted = await redisClient.del(tokenKey);
 
 			if (tokenDeleted === 0) {
-				return res.status(401).json({ error: 'Unauthorized - Invalid token' });
+				return res.status(401).json({ error: 'Unauthorized' });
 			}
 
 			return res.status(204).send();
